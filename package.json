@@ -1,0 +1,26 @@
+{
+  "name": "Resonador",
+  "author": "Oliver Castelblanco",
+  "version": "0.0.1",
+  "description": "Herramienta de seguimiento de publicaciones en redes sociales",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mediateca/resonador"
+  },
+  "keywords": [
+    "marketing",
+    "digital",
+    "marketing digital",
+    "mediateca"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mediateca/resonador/issues"
+  },
+  "homepage": "https://github.com/Mediateca/resonador#readme"
+}
