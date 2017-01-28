@@ -1,0 +1,11 @@
+<div ng-controller="contenido as cont">
+    <ng-include src="cont.rutaHeader" class="encabezado"></ng-include>
+    <div flex layout="row" class="contenedor">
+        <div ng-controller="sidenav as sn">
+            <ng-include src="cont.rutaSidenav"></ng-include>
+        </div>
+        <md-content flex>
+            <ng-include src="cont.rutaCuerpo" class="cuerpo"></ng-include>
+        </md-content>
+    </div>
+</div>

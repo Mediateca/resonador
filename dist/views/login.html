@@ -1,0 +1,35 @@
+<div ng-controller="login as login" flex layout="row" layout-align="center center">
+    <div flex-xs="100" flex-gt-xs="60" flex-gt-sm="50" flex-gt-lg="33" class="md-whiteframe-z2">
+        <md-content layout="column" class="md-padding">
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <h2>Ingreso seguro</h2>
+                </div>
+            </md-toolbar>
+            <br>
+            <form layout="column" name="ingreso" ng-submit="login.autenticar()">
+                <md-input-container>
+                    <label>Usuario</label>
+                    <input type="email" name="usuario" ng-model="login.usuario" required>
+                </md-input-container>
+                <div ng-messages="ingreso.usuario.$error" role="alert">
+                    <div ng-message="required">Debe ingresar su usuario.</div>
+                    <div ng-message="email">Debe ser una dirección de correo electrónico.</div>
+                </div>
+                <md-input-container>
+                    <label>Contraseña</label>
+                    <input type="password" name="clave" ng-model="login.clave" required>
+                </md-input-container>
+                <div ng-messages="ingreso.usuario.$error" role="alert">
+                    <div ng-message="required">Debe ingresar su contraseña.</div>
+                </div>
+                <br>
+                <div layout="row" layout-align="end end">
+                    <md-button type="submit" class="md-raised md-primary">
+                        Ingresar
+                    </md-button>
+                </div>
+            </form>
+        </md-content>
+    </div>
+</div>
