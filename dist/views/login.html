@@ -1,35 +1,39 @@
-<div ng-controller="login as login" flex layout="row" layout-align="center center">
-    <div flex-xs="100" flex-gt-xs="60" flex-gt-sm="50" flex-gt-lg="33" class="md-whiteframe-z2">
+<div ng-controller="login as login" flex layout="row" layout-align="center center" layout-padding layout-wrap layout-fill>
+    <md-whiteframe flex-xs="100" flex-gt-xs="50" flex-gt-sm="40" flex-gt-lg="20" class="md-whiteframe-2dp">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Ingreso seguro</h2>
+            </div>
+        </md-toolbar>
         <md-content layout="column" class="md-padding">
-            <md-toolbar>
-                <div class="md-toolbar-tools">
-                    <h2>Ingreso seguro</h2>
-                </div>
-            </md-toolbar>
             <br>
             <form layout="column" name="ingreso" ng-submit="login.autenticar()">
                 <md-input-container>
-                    <label>Usuario</label>
+                    <label>Usuario (email)</label>
                     <input type="email" name="usuario" ng-model="login.usuario" required>
+                    <div ng-messages="ingreso.usuario.$error" role="alert">
+                        <div ng-message="required">Debe ingresar su usuario.</div>
+                        <div ng-message="email">Debe ser una dirección de correo electrónico.</div>
+                    </div>
                 </md-input-container>
-                <div ng-messages="ingreso.usuario.$error" role="alert">
-                    <div ng-message="required">Debe ingresar su usuario.</div>
-                    <div ng-message="email">Debe ser una dirección de correo electrónico.</div>
-                </div>
                 <md-input-container>
                     <label>Contraseña</label>
                     <input type="password" name="clave" ng-model="login.clave" required>
+                    <div ng-messages="ingreso.usuario.$error" role="alert">
+                        <div ng-message="required">Debe ingresar su contraseña.</div>
+                    </div>
                 </md-input-container>
-                <div ng-messages="ingreso.usuario.$error" role="alert">
-                    <div ng-message="required">Debe ingresar su contraseña.</div>
-                </div>
-                <br>
-                <div layout="row" layout-align="end end">
-                    <md-button type="submit" class="md-raised md-primary">
-                        Ingresar
-                    </md-button>
-                </div>
+                <md-checkbox ng-model="login.recordarSesion" aria-label="Recordar mi sesión">
+                    Recordarme
+                </md-checkbox>
+                <md-button type="submit" class="md-raised md-primary">
+                    Ingresar
+                </md-button>
             </form>
+            <div layout="column" layout-gt-xs="row" layout-align="space-between">
+                <md-button href="#perdiClave">Perdí mi contraseña</md-button>
+                <md-button href="#registro">Registrarse</md-button>
+            </div>
         </md-content>
-    </div>
+    </md-whiteframe>
 </div>

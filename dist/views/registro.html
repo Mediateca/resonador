@@ -1,0 +1,68 @@
+<div ng-controller="registro as rg" flex layout="row" layout-align="center center" layout-padding layout-wrap layout-fill>
+    <md-whiteframe flex-xs="100" flex-gt-xs="50" flex-gt-sm="40" flex-gt-lg="20" class="md-whiteframe-2dp">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <md-button href="#" class="md-icon-button" aria-label="Volver">
+                    <md-icon>
+                        <i class="fa fa-chevron-left"></i>
+                    </md-icon>
+                </md-button>
+                <h2>Registre su usuario</h2>
+            </div>
+        </md-toolbar>
+        <md-content layout="column" class="md-padding validaCodigoForm" ng-if="!rg.codigoValidado">
+            <md-subheader class="md-primary">Ingrese el código de acceso y oprima Enter</md-subheader>
+            <md-input-container>
+                <label>Código de acceso</label>
+                <input type="text" name="codigo" ng-model="codigo" ng-blur="rg.validarCodigo(codigo)" ng-keypress="rg.enterCodigo($event, codigo)">
+            </md-input-container>
+        </md-content>
+        <md-content layout="column" class="md-padding registraUsuarioForm" ng-if="rg.codigoValidado">
+            <md-subheader class="md-primary">Ingrese el usuario y la contraseña que desea para su cuenta</md-subheader>
+            <form layout="column" name="registro" ng-submit="rg.registrar()">
+                <md-input-container>
+                    <label>Nombres</label>
+                    <input type="text" name="nombres" ng-model="rg.nombres" required>
+                    <div ng-messages="registro.nombres.$error" role="alert">
+                        <div ng-message="required">Debe ingresar sus nombres completos en este campo.</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Apellidos</label>
+                    <input type="text" name="apellidos" ng-model="rg.apellidos" required>
+                    <div ng-messages="registro.apellidos.$error" role="alert">
+                        <div ng-message="required">Debe ingresar sus apellidos en este campo.</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Correo electrónico</label>
+                    <input type="email" name="email" ng-model="rg.email" required>
+                    <div ng-messages="registro.email.$error" role="alert">
+                        <div ng-message="required">Debe ingresar su correo electrónico en este campo.</div>
+                        <div ng-message="email">Debe ser una dirección de correo electrónico.</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Contraseña</label>
+                    <input type="password" name="clave" ng-model="rg.clave" required>
+                    <div ng-messages="registro.clave.$error" role="alert">
+                        <div ng-message="required">Debe ingresar su contraseña.</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Confirme la contraseña</label>
+                    <input type="password" name="claveC" ng-model="rg.claveC" required>
+                    <div ng-messages="registro.claveC.$error" role="alert">
+                        <div ng-message="required">Debe ingresar la confirmación de contraseña.</div>
+                    </div>
+                    <div class="md-input-message-animation" ng-if="rg.claveC && rg.clave != rg.claveC">
+                        <div>Las contraseñas deben coincidir</div>
+                    </div>
+                </md-input-container>
+                <md-button type="submit" class="md-raised md-primary">
+                    Registrarse
+                </md-button>
+            </form>
+        </md-content>
+    </md-whiteframe>
+</div>

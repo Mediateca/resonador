@@ -20,8 +20,19 @@ var app = angular.module('app', [
 app.controller('main', [function(){
     console.log('main');
 }]);
-app.controller('contenido', ['$firebaseAuth', function($firebaseAuth){
+app.controller('contenido', ['$firebaseAuth', '$location', function($firebaseAuth, $location){
     console.log('contenido');
+    var ruta = $location.path();
+    var rutaVista = 'views';
+    var vista;
+    switch (ruta) {
+        case '/':
+            vista = rutaVista+ruta+'inicio.html';
+            break;
+        default:
+            vista = rutaVista+ruta+'.html';
+    }
+    console.log('location', vista);
     var raiz = this;
     var auth = $firebaseAuth();
     auth.$onAuthStateChanged(function(firebaseUser) {
@@ -29,11 +40,14 @@ app.controller('contenido', ['$firebaseAuth', function($firebaseAuth){
         if (firebaseUser) {
             raiz.rutaHeader = 'assets/html/header.html';
             raiz.rutaSidenav = 'assets/html/sidenav.html';
-            raiz.rutaCuerpo = 'views/inicio.html';
+            raiz.rutaCuerpo = vista;
         } else {
             raiz.rutaHeader = null;
             raiz.rutaSidenav = null;
-            raiz.rutaCuerpo = 'views/login.html';
+            if (ruta != '/perdiClave' && ruta != '/registro') {
+                raiz.rutaCuerpo = rutaVista+'/login.html';
+            } else {
+                raiz.rutaCuerpo = rutaVista+ruta+'.html';            }
         }
     });
 }]);
@@ -64,5 +78,21 @@ app.controller('login', ['$firebaseAuth', function($firebaseAuth){
         }).catch(function(error){
             console.log('Error', error);
         });
-    }
+    };
+}]);
+app.controller('registro', [function(){
+    console.log('registro');
+    var raiz =  this;
+    raiz.codigoValidado = false;
+    raiz.validarCodigo = function(codigo){
+        console.log('codigo',codigo);
+        if (codigo == 'pepe') {
+            raiz.codigoValidado = true;
+        }
+    };
+    raiz.enterCodigo = function(tecla, codigo) {
+        if (tecla.key == 'Enter') {
+            raiz.validarCodigo(codigo);
+        }  
+    };
 }]);
