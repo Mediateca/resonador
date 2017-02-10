@@ -47,7 +47,11 @@ module.exports = function(grunt) {
                             'node_modules/angular-messages/angular-messages.min.js',
                             'node_modules/angular-route/angular-route.min.js',
                             'node_modules/angular-sanitize/angular-sanitize.min.js',
-                            'node_modules/angularfire/dist/angularfire.min.js'
+                            'node_modules/angularfire/dist/angularfire.min.js',
+                            'node_modules/ngclipboard/dist/ngclipboard.min.js',
+                            'node_modules/ngclipboard/node_modules/clipboard/dist/clipboard.min.js',
+                            'node_modules/angular-material-expansion-panel/dist/md-expansion-panel.min.js',
+                            'node_modules/ng-file-upload/dist/ng-file-upload-all.min.js'
                         ],
                         dest: 'dist/assets/js/',
                         flatten: true

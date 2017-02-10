@@ -19,3 +19,65 @@
         }
     }
 }
+.eliminar-stack {
+    color: rgb(255,64,129);
+}
+.md-icon-button {
+    & .md-avatar {
+        margin-top: -1*($baseline-grid);
+        box-sizing: content-box;
+        flex: none;
+        width: $list-item-primary-avatar-width;
+        height: $list-item-primary-avatar-width;
+    }
+}
+$profile-img-size: 175px;
+.cont-img-perfil {
+    position: relative;
+    .imagen-perfil {
+        overflow: hidden;
+        float: left;
+        width: $profile-img-size;
+        height: $profile-img-size;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+        &:hover {
+            &:before {
+                content: "";
+                width: $profile-img-size;
+                height: $profile-img-size;
+                background-color: rgba(0,0,0,0.5);
+                position: absolute;
+                border-radius: 50%;
+                z-index: 99;
+            }
+            &:after {
+                font-family: FontAwesome;
+                content: $fa-var-pencil;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                color: #eee;
+                font-size: 2em;
+                margin-left: -0.5em;
+                margin-top: -0.5em;
+                z-index: 101;
+            }
+        }
+        > .img {
+            width: 175px;
+            height: 175px;
+            background-position: 50%;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        > .precarga {
+            z-index: 104;
+            margin-left: 62px;
+            margin-top: 62px;
+        }
+    }
+}

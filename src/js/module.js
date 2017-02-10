@@ -14,7 +14,10 @@ var app = angular.module('app', [
     'ngMessages',
     'ngRoute',
     'ngSanitize',
-    'firebase'
+    'firebase',
+    'ngclipboard',
+    'material.components.expansionPanels',
+    'ngFileUpload'
 ]);
 // Controladores
 app.controller('main', [function(){
@@ -31,12 +34,11 @@ app.controller('contenido', ['$firebaseAuth', '$location', function($firebaseAut
             break;
         default:
             vista = rutaVista+ruta+'.html';
+            break;
     }
-    console.log('location', vista);
     var raiz = this;
     var auth = $firebaseAuth();
     auth.$onAuthStateChanged(function(firebaseUser) {
-        console.log('Cambiando estatus', firebaseUser);
         if (firebaseUser) {
             raiz.rutaHeader = 'assets/html/header.html';
             raiz.rutaSidenav = 'assets/html/sidenav.html';
@@ -47,23 +49,39 @@ app.controller('contenido', ['$firebaseAuth', '$location', function($firebaseAut
             if (ruta != '/perdiClave' && ruta != '/registro') {
                 raiz.rutaCuerpo = rutaVista+'/login.html';
             } else {
-                raiz.rutaCuerpo = rutaVista+ruta+'.html';            }
+                raiz.rutaCuerpo = rutaVista+ruta+'.html';
+            }
         }
     });
 }]);
-app.controller('header',['$firebaseAuth', function($firebaseAuth){
+app.controller('header',['$firebaseAuth','$firebaseObject','$firebaseStorage','$firebaseArray','$rootScope', function($firebaseAuth,$firebaseObject,$firebaseStorage,$firebaseArray,$rootScope){
     console.log('header');
     var raiz = this;
-    var auth = $firebaseAuth();
-    raiz.nombreUsuario = auth.$getAuth().email;
-    console.log('usuario autenticado:',raiz.nombreUsuario);
-    raiz.salir = function() {
-        console.log('Cerrando sesión...');
-        auth.$signOut();
-    };
+    raiz.auth = $firebaseAuth();
+    var usuarioAutenticado = raiz.auth.$getAuth();
+    var listaUsuarios = $firebaseArray(firebase.database().ref('usuarios'));
+    listaUsuarios.$loaded().then(function(ref){
+        angular.forEach(listaUsuarios, function(valor, llave){
+            if(valor.email == usuarioAutenticado.email) {
+                raiz.usuario = $firebaseObject(firebase.database().ref('usuarios/'+valor.$id));
+                raiz.usuario.$loaded().then(function(ref){
+                    var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
+                    var ruta = $firebaseStorage(rutaAvatar);
+                    ruta.$getDownloadURL().then(function(url) {
+                        raiz.rutaAvatar = url;
+                    });
+                    
+                });
+            }
+        });
+    });
     raiz.abreMenu = function($mdOpenMenu, ev) {
         $mdOpenMenu(ev);
     };
+    $rootScope.$on('userUpdate',function(ev,nuevosDatos){
+        raiz.usuario = nuevosDatos[0];
+        raiz.rutaAvatar = nuevosDatos[1];
+    });
 }]);
 app.controller('sidenav', [function(){
     console.log('sidenav');
@@ -94,5 +112,66 @@ app.controller('registro', [function(){
         if (tecla.key == 'Enter') {
             raiz.validarCodigo(codigo);
         }  
+    };
+}]);
+app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStorage','$firebaseArray','Upload','$rootScope',function($firebaseAuth,$firebaseObject,$firebaseStorage,$firebaseArray,Upload,$rootScope){
+    console.log('editarPerfil');
+    var raiz = this;
+    raiz.cargandoImagen = false;
+    raiz.auth = $firebaseAuth();
+    var usuarioAutenticado = raiz.auth.$getAuth();
+    var listaUsuarios = $firebaseArray(firebase.database().ref('usuarios'));
+    var avatarStorage;
+    listaUsuarios.$loaded().then(function(ref){
+        angular.forEach(listaUsuarios, function(valor, llave){
+            if(valor.email == usuarioAutenticado.email) {
+                raiz.usuario = $firebaseObject(firebase.database().ref('usuarios/'+valor.$id));
+                raiz.usuario.$loaded().then(function(ref){
+                    var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
+                    avatarStorage = $firebaseStorage(rutaAvatar);
+                    avatarStorage.$getDownloadURL().then(function(url) {
+                        raiz.rutaAvatar = url;
+                    });
+                    
+                });
+            }
+        });
+    });
+    raiz.cambiarAvatar = function(avatar) {
+        raiz.cargandoImagen = true;
+        if (avatar) {
+            var extension;
+            switch(avatar.type) {
+                case 'image/jpeg':
+                    extension = 'jpg';
+                    break;
+                case 'image/png':
+                    extension = 'png';
+                    break;
+                case 'image/gif':
+                    extension = 'gif';
+                    break;
+                default:
+                    extension = 'jpg';
+            }
+            var cargaAvatar;
+            avatarStorage.$delete().then(function() {
+                raiz.usuario.avatar = extension;
+                avatarStorage = $firebaseStorage(firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+extension));
+                cargaAvatar = avatarStorage.$put(avatar, {
+                    contentType: avatar.type,
+                    usuario: avatar.email
+                });
+                cargaAvatar.$progress(function(snapshot){
+                    raiz.porcentajeCarga = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                });
+                cargaAvatar.$complete(function(snapshot) {
+                    raiz.rutaAvatar = snapshot.downloadURL;
+                    raiz.cargandoImagen = false;
+                    raiz.usuario.$save();
+                    $rootScope.$emit('userUpdate', [raiz.usuario, raiz.rutaAvatar]);
+                });
+            });
+        }
     };
 }]);

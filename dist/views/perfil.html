@@ -1,0 +1,53 @@
+<div ng-controller="editarPerfil as ep" layout="row" layout-align="center center">
+    <md-content layout="column" flex="50" class="md-padding">
+        <h1>Editar mi perfil</h1>
+        <div layout="row">
+            <div flex="30" class="cont-img-perfil">
+                <div class="imagen-perfil" ngf-drop="ep.cambiarAvatar($file)" ngf-select="ep.cambiarAvatar($file)" ngf-pattern="'image/*'">
+                    <div class="img" style="background-image: url({{ep.rutaAvatar}})"></div>
+                    <md-progress-circular class="precarga" md-mode="indeterminate" ng-show="ep.cargandoImagen"></md-progress-circular>
+                </div>
+            </div>
+            <div layout="column" flex="70">
+                <md-input-container>
+                    <label>Nombres</label>
+                    <input type="text" name="nombres" ng-model="ep.usuario.nombres">
+                </md-input-container>
+                <md-input-container>
+                    <label>Apellidos</label>
+                    <input type="text" name="apellidos" ng-model="ep.usuario.apellidos">
+                </md-input-container>
+            </div>
+        </div>
+        <md-expansion-panel md-component-id="panelClave">
+        
+            <md-expansion-panel-collapsed>
+                <div class="md-title">Cambiar contraseña</div>
+                <div class="md-summary">Cambie su contraseña</div>
+                <md-expansion-panel-icon></md-expansion-panel-icon>
+            </md-expansion-panel-collapsed>
+            
+            
+            <md-expansion-panel-expanded>
+            
+                <md-expansion-panel-header>
+                    <div class="md-title">Expanded Title</div>
+                    <div class="md-summary">Expanded Summary</div>
+                    <md-expansion-panel-icon></md-expansion-panel-icon>
+                </md-expansion-panel-header>
+                
+                <md-expansion-panel-content>
+                    <h4>Content</h4>
+                    <p>Put content in here</p>
+                </md-expansion-panel-content>
+                
+                <md-expansion-panel-footer>
+                    <div flex></div>
+                    <md-button class="md-warn" ng-click="$panel.collapse()">Collapse</md-button>
+                </md-expansion-panel-footer>
+            
+            </md-expansion-panel-expanded>
+        
+        </md-expansion-panel>
+    </md-content>
+</div>

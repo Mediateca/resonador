@@ -7,16 +7,27 @@
     </div>
     <div layout="row" layout-align="end center">
         <md-menu>
-            <md-button aria-label="Menú de perfil" ng-click="hd.abreMenu($mdOpenMenu, $event)" layout="row" layout-align="center">
-                <span class="md-padding">{{hd.nombreUsuario}}</span>
-                <md-icon md-menu-origin layout="row" layout-align="center center">
-                    <i class="fa fa-user fa-lg"></i><i class="fa fa-caret-down fa-lg"></i>
-                </md-icon>
+            <md-button aria-label="Menú de perfil" ng-click="hd.abreMenu($mdOpenMenu, $event)" layout="row" layout-align="center" class="md-icon-button">
+                <img md-menu-origin alt="{{hd.usuario.$id}}" ng-src="assets/img/avatar_generico.png" class="md-avatar" ng-if="!hd.usuario.avatar">
+                <img md-menu-origin alt="{{hd.usuario.$id}}" ng-src="{{hd.rutaAvatar}}" class="md-avatar" ng-if="hd.usuario.avatar">
             </md-button>
             <md-menu-content width="4">
                 <md-menu-item>
-                    <md-button aria-label="Cerrar sesión" ng-click="hd.salir()" layout="row" layout-align="center">
-                        <i class="fa fa-sign-out fa-lg"></i>
+                    <md-button aria-label="Editar perfil" layout="row" layout-align="center" href="#perfil">
+                        <md-icon md-font-icon="fa fa-user" style="font-size:1.5em"></md-icon>
+                        <span class="md-padding">Editar perfil</span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item ng-if="hd.usuario.admin">
+                    <md-button aria-label="Intercambiar interfaz de administrador" href="admin" layout="row" layout-align="center">
+                        <md-icon md-font-icon="fa fa-exchange" style="font-size:1.5em"></md-icon>
+                        <span class="md-padding">Abrir interfaz de administrador</span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-divider></md-menu-divider>
+                <md-menu-item>
+                    <md-button aria-label="Cerrar sesión" ng-click="hd.auth.$signOut()" layout="row" layout-align="center">
+                        <md-icon md-font-icon="fa fa-sign-out" style="font-size:1.5em"></md-icon>
                         <span class="md-padding">Cerrar sesión</span>
                     </md-button>
                 </md-menu-item>

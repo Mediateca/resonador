@@ -1,0 +1,34 @@
+<md-dialog aria-label="Crear usuarios" flex="66">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Crear códigos de usuario</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cerrarDialogo()">
+                    <md-icon md-font-icon="fa fa-times" aria-label="Cerrar dialogo"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <span>Defina el número de códigos a crear</span>
+                <md-slider-container>
+                    <md-slider flex min="1" max="20" ng-model="numCodigos" aria-label="slider"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="numCodigos" aria-label="Número de códigos" aria-controls="slider">
+                    </md-input-container>
+                </md-slider-container>
+            </div>
+        </md-dialog-content>
+        
+        <md-dialog-actions layout="row">
+            <md-button class="md-warn" ng-click="cerrarDialogo()">
+                Cancelar
+            </md-button>
+            <md-button class="md-primary" ng-click="aceptarDatos(numCodigos)">
+                Aceptar
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

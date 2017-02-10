@@ -1,0 +1,124 @@
+<!doctype html>
+<html ng-app="admin">
+    <head>
+        <title>Mediateca</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+        <link rel="stylesheet" href="../assets/css/app.min.css">
+        <!-- Llamado a dependencias JS -->
+        <script src="../assets/js/angular.min.js"></script>
+        <script src="../assets/js/angular-animate.min.js"></script>
+        <script src="../assets/js/angular-aria.min.js"></script>
+        <script src="../assets/js/angular-messages.min.js"></script>
+        <script src="../assets/js/angular-route.min.js"></script>
+        <script src="../assets/js/angular-sanitize.min.js"></script>
+        <script src="../assets/js/angular-material.min.js"></script>
+        <script src="../assets/js/firebase.min.js"></script>
+        <script src="../assets/js/angularfire.min.js"></script>
+        <script src="../assets/js/clipboard.min.js"></script>
+        <script src="../assets/js/ngclipboard.min.js"></script>
+    </head>
+    <body>
+        <div ng-controller="main as main" ng-cloak>
+            <div flex layout="row" layout-align="center center" layout-padding layout-wrap layout-fill ng-show="main.variablesCargadas">
+                <md-whiteframe flex-xs="100" flex-gt-xs="80" flex-gt-sm="70" flex-gt-md="50" class="md-whiteframe-2dp" ng-if="!main.autenticado">
+                    <md-toolbar>
+                        <div class="md-toolbar-tools">
+                            <h2>Ingreso seguro</h2>
+                        </div>
+                    </md-toolbar>
+                    <md-content layout="column" class="md-padding">
+                        <form layout="column" name="ingreso" ng-submit="main.autenticar()">
+                            <md-input-container>
+                                <label>Usuario (email)</label>
+                                <input type="email" name="usuario" ng-model="main.usuario" required>
+                                <div ng-messages="ingreso.usuario.$error" role="alert">
+                                    <div ng-message="required">Debe ingresar su usuario.</div>
+                                    <div ng-message="email">Debe ser una dirección de correo electrónico.</div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container>
+                                <label>Contraseña</label>
+                                <input type="password" name="clave" ng-model="main.clave" required>
+                                <div ng-messages="ingreso.usuario.$error" role="alert">
+                                    <div ng-message="required">Debe ingresar su contraseña.</div>
+                                </div>
+                            </md-input-container>
+                            <md-button type="submit" class="md-raised md-primary">
+                                Ingresar
+                            </md-button>
+                        </form>
+                    </md-content>
+                </md-whiteframe>
+                <md-whiteframe flex-xs="100" flex-gt-xs="70" flex-gt-md="50" class="md-whiteframe-2dp" ng-if="main.autenticado && main.permisoAdmin">
+                    <md-toolbar>
+                        <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                            <h2>Administración de usuarios</h2>
+                            <div layout-align="end center">
+                                <md-button aria-label="Volver a la interfaz de usuario" class="md-icon-button" href="../">
+                                    <md-icon md-font-icon="fa fa-exchange" style="font-size: 1.5em">
+                                        <md-tooltip>Volver a la interfaz de usuario</md-tooltip>
+                                    </md-icon>
+                                </md-button>
+                                <md-button aria-label="Cerrar sesión" class="md-icon-button" ng-click="main.salir()">
+                                    <md-icon md-font-icon="fa fa-sign-out" style="font-size: 1.5em">
+                                        <md-tooltip>Cerrar sesión</md-tooltip>
+                                    </md-icon>
+                                </md-button>
+                            </div>
+                        </div>
+                    </md-toolbar>
+                    <md-content layout="column" class="md-padding">
+                        <md-list>
+                            <md-list-item class="noright" ng-repeat="usuario in main.listaUsuarios">
+                                <img alt="{{usuario.$id}}" ng-src="../assets/img/avatar_generico.png" class="md-avatar" ng-if="!usuario.avatar">
+                                <img alt="{{usuario.$id}}" ng-init="main.generaRutaAvatar(usuario)" ng-src="{{main.rutaAvatar[usuario.$id]}}" class="md-avatar" ng-if="usuario.avatar">
+                                <p ng-if="!usuario.nombres">{{usuario.$id}}</p>
+                                <p ng-if="usuario.nombres">{{usuario.nombres+' '+usuario.apellidos}}</p>
+                                <md-switch class="md-secondary" ng-model="usuario.estado" style="margin-right: 1em" ng-change="main.listaUsuarios.$save(usuario)" aria-label="Activar/desactivar código"></md-switch>
+                                <md-icon md-font-icon="fa fa-clipboard fa-fw" style="font-size: 1.5em" class="md-secondary" ngclipboard data-clipboard-text="{{usuario.$id}}" ng-click="main.copiarCB()" aria-label="Copiar código al portapapeles">
+                                    <md-tooltip md-direction="top">Copiar código al portapapeles</md-tooltip>
+                                </md-icon>
+                                <md-icon class="md-secondary" ng-click="main.convertirAdmin($event, usuario)" aria-label="Toggle convertir en administrador" ng-disabled="!usuario.estado || !usuario.nombres">
+                                    <md-tooltip md-direction="top" ng-if="!usuario.admin">Dar estatus de administrador</md-tooltip>
+                                    <md-tooltip md-direction="top" ng-if="usuario.admin">Quitar estatus de administrador</md-tooltip>
+                                    <span class="fa-stack">
+                                        <i class="fa fa-wrench fa-stack-1x"></i>
+                                        <i class="fa fa-ban fa-stack-2x eliminar-stack" ng-if="usuario.admin"></i>
+                                    </span>
+                                </md-icon>
+                                <md-icon md-font-icon="fa fa-recycle fa-fw" style="font-size: 1.5em" class="md-secondary" ng-click="main.reciclarCodigo($event, usuario)" aria-label="Reciclar código">
+                                    <md-tooltip md-direction="top">Reciclar código</md-tooltip>
+                                </md-icon>
+                                <md-icon md-font-icon="fa fa-trash fa-fw" style="font-size: 1.5em" class="md-secondary" ng-click="main.eliminarCodigo($event, usuario)" aria-label="Eliminar código">
+                                    <md-tooltip md-direction="top">Eliminar código</md-tooltip>
+                                </md-icon>
+                            </md-list-item>
+                        </md-list>
+                        <div layout="row" layout-align="end end">
+                            <md-button class="md-fab" aria-label="Nuevo usuario" ng-click="main.crearCodigos()">
+                                <md-tooltip md-direction="top">
+                                    Crear nuevos códigos de usuario
+                                </md-tooltip>
+                                <md-icon md-font-icon="fa fa-plus" style="font-size: 1.5em"></md-icon>
+                            </md-button>
+                        </div>
+                    </md-content>
+                </md-whiteframe>
+                <md-whiteframe flex-xs="100" flex-gt-xs="70" flex-gt-md="50" class="md-whiteframe-2dp" ng-if="main.autenticado && !main.permisoAdmin">
+                    <md-content class="md-padding">
+                        <p>Usted no tiene permisos para ingresar a esta página.</p>
+                        <p>Por favor, contacte al administrador del sistema.</p>
+                        <md-button class="md-primary md-raised" href="../">
+                            Volver
+                        </md-button>
+                    </md-content>
+                </md-whiteframe>
+            </div>
+        </div>
+        <!-- Componentes de la app raiz -->
+        <script src="module.min.js"></script>
+    </body>
+</html>
