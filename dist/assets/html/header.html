@@ -8,8 +8,7 @@
     <div layout="row" layout-align="end center">
         <md-menu>
             <md-button aria-label="Menú de perfil" ng-click="hd.abreMenu($mdOpenMenu, $event)" layout="row" layout-align="center" class="md-icon-button">
-                <img md-menu-origin alt="{{hd.usuario.$id}}" ng-src="assets/img/avatar_generico.png" class="md-avatar" ng-if="!hd.usuario.avatar">
-                <img md-menu-origin alt="{{hd.usuario.$id}}" ng-src="{{hd.rutaAvatar}}" class="md-avatar" ng-if="hd.usuario.avatar">
+                <img md-menu-origin alt="{{hd.usuario.$id}}" ng-src="{{hd.rutaAvatar}}" class="md-avatar">
             </md-button>
             <md-menu-content width="4">
                 <md-menu-item>

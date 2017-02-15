@@ -10,12 +10,22 @@
                 <h2>Registre su usuario</h2>
             </div>
         </md-toolbar>
-        <md-content layout="column" class="md-padding validaCodigoForm" ng-if="!rg.codigoValidado">
+        <md-content layout="column" class="md-padding validaCodigoForm">
             <md-subheader class="md-primary">Ingrese el código de acceso y oprima Enter</md-subheader>
-            <md-input-container>
-                <label>Código de acceso</label>
-                <input type="text" name="codigo" ng-model="codigo" ng-blur="rg.validarCodigo(codigo)" ng-keypress="rg.enterCodigo($event, codigo)">
-            </md-input-container>
+            <div layout="row" flex>
+                <div flex-gt-xs="80">
+                    <md-input-container class="md-block">
+                        <label>Código de acceso</label>
+                        <input type="text" name="codigo" ng-model="codigo" ng-keypress="rg.enterCodigo($event, codigo)" ng-change="rg.codigoInvalido = false" ng-disabled="rg.codigoValidado">
+                        <div class="md-input-message-animation" ng-show="rg.codigoInvalido">
+                            <div>El código ingresado es inválido</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div flex-gt-xs="20">
+                    <md-button ng-class="{'md-raised':codigo}" ng-click="rg.validarCodigo(codigo)" ng-disabled="!codigo || rg.codigoValidado">Validar</md-button>
+                </div>
+            </div>
         </md-content>
         <md-content layout="column" class="md-padding registraUsuarioForm" ng-if="rg.codigoValidado">
             <md-subheader class="md-primary">Ingrese el usuario y la contraseña que desea para su cuenta</md-subheader>

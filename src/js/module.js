@@ -19,6 +19,7 @@ var app = angular.module('app', [
     'material.components.expansionPanels',
     'ngFileUpload'
 ]);
+var rutaAvatarGenerica = 'assets/img/avatar_generico.png';
 // Controladores
 app.controller('main', [function(){
     console.log('main');
@@ -65,12 +66,17 @@ app.controller('header',['$firebaseAuth','$firebaseObject','$firebaseStorage','$
             if(valor.email == usuarioAutenticado.email) {
                 raiz.usuario = $firebaseObject(firebase.database().ref('usuarios/'+valor.$id));
                 raiz.usuario.$loaded().then(function(ref){
-                    var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
-                    var ruta = $firebaseStorage(rutaAvatar);
-                    ruta.$getDownloadURL().then(function(url) {
-                        raiz.rutaAvatar = url;
-                    });
-                    
+                    if (raiz.usuario.avatar) {
+                        var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
+                        var ruta = $firebaseStorage(rutaAvatar);
+                        ruta.$getDownloadURL().then(function(url) {
+                            raiz.rutaAvatar = url;
+                        }, function(error){
+                            raiz.rutaAvatar = rutaAvatarGenerica;
+                        });
+                    } else {
+                        raiz.rutaAvatar = rutaAvatarGenerica;
+                    }
                 });
             }
         });
@@ -98,20 +104,58 @@ app.controller('login', ['$firebaseAuth', function($firebaseAuth){
         });
     };
 }]);
-app.controller('registro', [function(){
+app.controller('registro', ['$firebaseObject','$firebaseAuth','$mdDialog','$location',function($firebaseObject,$firebaseAuth,$mdDialog,$location){
     console.log('registro');
+    var auth = $firebaseAuth();
+    var usuario;
     var raiz =  this;
     raiz.codigoValidado = false;
+    raiz.codigoInvalido = false;
     raiz.validarCodigo = function(codigo){
-        console.log('codigo',codigo);
-        if (codigo == 'pepe') {
-            raiz.codigoValidado = true;
+        usuario = $firebaseObject(firebase.database().ref('usuarios/'+codigo));
+        if (codigo) {
+            usuario.$loaded().then(function(data){
+                if (usuario.$value !== null && !usuario.email) {
+                    raiz.codigoValidado = true;
+                    raiz.codigoInvalido = false;
+                } else {
+                    raiz.codigoInvalido = true;
+                }
+            },function(error){console.log('Error',error)});
         }
     };
     raiz.enterCodigo = function(tecla, codigo) {
         if (tecla.key == 'Enter') {
             raiz.validarCodigo(codigo);
         }  
+    };
+    raiz.registrar = function() {
+        auth.$createUserWithEmailAndPassword(raiz.email, raiz.clave).then(function(firebaseUser) {
+            usuario.nombres = raiz.nombres;
+            usuario.apellidos = raiz.apellidos;
+            usuario.email = raiz.email;
+            usuario.estado = true;
+            usuario.avatar = false;
+            usuario.$save().then(function(){
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(true)
+                    .title('Registro exitoso')
+                    .textContent('Ha sido registrado correctamente. Ahora será re-dirigido a la página principal.')
+                    .ariaLabel('Registro existoso')
+                    .ok('Aceptar')
+                ).then(function(){
+                    auth.$signInWithEmailAndPassword(raiz.email, raiz.clave).then(function(firebaseUser){
+                        console.log('Logueado como', firebaseUser.email);
+                        $location.path('/');
+                    }).catch(function(error){
+                        console.log('Error', error);
+                    });
+                });
+            },function(error){console.log('Error',error)});
+        }).catch(function(error) {
+            console.error("Error: ", error);
+        });
     };
 }]);
 app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStorage','$firebaseArray','$rootScope','$mdToast','$timeout',function($firebaseAuth,$firebaseObject,$firebaseStorage,$firebaseArray,$rootScope,$mdToast,$timeout){
@@ -131,11 +175,17 @@ app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStora
             if(valor.email == usuarioAutenticado.email) {
                 raiz.usuario = $firebaseObject(firebase.database().ref('usuarios/'+valor.$id));
                 raiz.usuario.$loaded().then(function(ref){
-                    var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
-                    avatarStorage = $firebaseStorage(rutaAvatar);
-                    avatarStorage.$getDownloadURL().then(function(url) {
-                        raiz.rutaAvatar = url;
-                    });
+                    if (raiz.usuario.avatar) {
+                        var rutaAvatar = firebase.storage().ref('usuarios/avatar/'+raiz.usuario.$id+'.'+raiz.usuario.avatar);
+                        avatarStorage = $firebaseStorage(rutaAvatar);
+                        avatarStorage.$getDownloadURL().then(function(url) {
+                            raiz.rutaAvatar = url;
+                        }, function(error){
+                            raiz.rutaAvatar = rutaAvatarGenerica;
+                        });
+                    } else {
+                        raiz.rutaAvatar = rutaAvatarGenerica;
+                    }
                 });
             }
         });
