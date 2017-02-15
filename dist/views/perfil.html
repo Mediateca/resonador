@@ -1,53 +1,90 @@
 <div ng-controller="editarPerfil as ep" layout="row" layout-align="center center">
-    <md-content layout="column" flex="50" class="md-padding">
+    <md-content layout="column" flex-gt-sm="50" class="md-padding cambiar-perfil">
         <h1>Editar mi perfil</h1>
-        <div layout="row">
-            <div flex="30" class="cont-img-perfil">
+        <div layout-gt-md="row" layout="column">
+            <div flex-gt-xs="30" class="cont-img-perfil">
                 <div class="imagen-perfil" ngf-drop="ep.cambiarAvatar($file)" ngf-select="ep.cambiarAvatar($file)" ngf-pattern="'image/*'">
                     <div class="img" style="background-image: url({{ep.rutaAvatar}})"></div>
                     <md-progress-circular class="precarga" md-mode="indeterminate" ng-show="ep.cargandoImagen"></md-progress-circular>
                 </div>
             </div>
-            <div layout="column" flex="70">
+            <div layout="column" flex-gt-xs="70">
                 <md-input-container>
                     <label>Nombres</label>
-                    <input type="text" name="nombres" ng-model="ep.usuario.nombres">
+                    <input type="text" name="nombres" ng-model="ep.usuario.nombres" ng-change="ep.guardaDatos(1000)">
                 </md-input-container>
                 <md-input-container>
                     <label>Apellidos</label>
-                    <input type="text" name="apellidos" ng-model="ep.usuario.apellidos">
+                    <input type="text" name="apellidos" ng-model="ep.usuario.apellidos" ng-change="ep.guardaDatos(1000)">
+                </md-input-container>
+                <md-input-container>
+                    <label>Correo electrónico</label>
+                    <input type="email" name="email" ng-model="ep.usuario.email" ng-disabled="true">
                 </md-input-container>
             </div>
         </div>
         <md-expansion-panel md-component-id="panelClave">
-        
             <md-expansion-panel-collapsed>
                 <div class="md-title">Cambiar contraseña</div>
-                <div class="md-summary">Cambie su contraseña</div>
+                <div class="md-summary">Debe re-escribir su contraseña</div>
                 <md-expansion-panel-icon></md-expansion-panel-icon>
             </md-expansion-panel-collapsed>
-            
-            
             <md-expansion-panel-expanded>
-            
-                <md-expansion-panel-header>
-                    <div class="md-title">Expanded Title</div>
-                    <div class="md-summary">Expanded Summary</div>
+                <md-expansion-panel-header ng-click="$panel.collapse()">
+                    <div class="md-title">Cambiar contraseña</div>
+                    <div class="md-summary">Re-escriba su contraseña actual para poderla actualizar.</div>
                     <md-expansion-panel-icon></md-expansion-panel-icon>
                 </md-expansion-panel-header>
-                
                 <md-expansion-panel-content>
-                    <h4>Content</h4>
-                    <p>Put content in here</p>
+                    <form name="cambioClave" layout="column">
+                        <div layout-gt-xs="row" layout-xs="column">
+                            <div flex-gt-xs="80">
+                                <md-input-container  md-no-float class="md-block">
+                                    <label>Contraseña actual</label>
+                                    <input type="password" name="claveActual" ng-model="ep.claveActual" required>
+                                    <md-icon md-font-icon="fa fa-check" style="font-size:1.5em" ng-if="ep.claveActualValida && !ep.verificandoClave"></md-icon>
+                                    <md-icon md-font-icon="fa fa-times-circle" style="font-size:1.5em" ng-if="ep.errorAutenticacion"></md-icon>
+                                    <div ng-messages="cambioClave.claveActual.$error" role="alert">
+                                        <div ng-message="required">Debe ingresar la contraseña actual.</div>
+                                    </div>
+                                    <div class="md-input-message-animation" ng-show="ep.errorAutenticacion">
+                                        <div>¡Clave incorrecta!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            <div flex-gt-xs="20">
+                                <md-button class="md-block" ng-class="{'md-raised':ep.claveActual}" aria-label="Verificar contraseña" ng-disabled="!ep.claveActual" ng-click="ep.validaClave()" ng-show="!ep.claveActualValida && !ep.verificandoClave">
+                                    <i class="fa fa-check-circle"></i>
+                                    Verificar
+                                </md-button>
+                                <md-progress-circular md-mode="indeterminate" ng-show="ep.verificandoClave"></md-progress-circular>
+                            </div>
+                        </div>
+                        <md-input-container class="md-block">
+                            <label>Nueva contraseña</label>
+                            <input type="password" id="claveVerif" name="claveVerif" ng-model="ep.claveVerif" ng-disabled="!ep.claveActualValida" required>
+                            <div ng-messages="cambioClave.claveVerif.$error" role="alert">
+                                <div ng-message="required">Debe ingresar la nueva contraseña.</div>
+                            </div>
+                        </md-input-container>
+                        <md-input-container class="md-block">
+                            <label>Repita la nueva contraseña</label>
+                            <input type="password" name="claveNueva" ng-model="ep.claveNueva" ng-disabled="!ep.claveVerif" required>
+                            <div ng-messages="cambioClave.claveNueva.$error" role="alert">
+                                <div ng-message="required">Debe re-ingresar la nueva contraseña.</div>
+                            </div>
+                            <div class="md-input-message-animation" ng-show="ep.claveVerif != ep.claveNueva">
+                                <div>Las contraseñas deben coincidir</div>
+                            </div>
+                        </md-input-container>
+                    </form>
                 </md-expansion-panel-content>
-                
+                <md-progress-linear md-mode="indeterminate" ng-if="ep.cambiandoClave"></md-progress-linear>
                 <md-expansion-panel-footer>
                     <div flex></div>
-                    <md-button class="md-warn" ng-click="$panel.collapse()">Collapse</md-button>
+                    <md-button class="md-warn" ng-click="ep.guardaClave($panel)" ng-disabled="!ep.claveVerif || (ep.claveNueva != ep.claveVerif)">Aceptar</md-button>
                 </md-expansion-panel-footer>
-            
             </md-expansion-panel-expanded>
-        
         </md-expansion-panel>
     </md-content>
 </div>

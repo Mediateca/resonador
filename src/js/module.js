@@ -78,9 +78,9 @@ app.controller('header',['$firebaseAuth','$firebaseObject','$firebaseStorage','$
     raiz.abreMenu = function($mdOpenMenu, ev) {
         $mdOpenMenu(ev);
     };
-    $rootScope.$on('userUpdate',function(ev,nuevosDatos){
-        raiz.usuario = nuevosDatos[0];
-        raiz.rutaAvatar = nuevosDatos[1];
+    $rootScope.$on('userUpdate', function (event, data) {
+        raiz.usuario = data[0];
+        raiz.rutaAvatar = data[1];
     });
 }]);
 app.controller('sidenav', [function(){
@@ -114,11 +114,15 @@ app.controller('registro', [function(){
         }  
     };
 }]);
-app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStorage','$firebaseArray','Upload','$rootScope',function($firebaseAuth,$firebaseObject,$firebaseStorage,$firebaseArray,Upload,$rootScope){
+app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStorage','$firebaseArray','$rootScope','$mdToast','$timeout',function($firebaseAuth,$firebaseObject,$firebaseStorage,$firebaseArray,$rootScope,$mdToast,$timeout){
     console.log('editarPerfil');
     var raiz = this;
     raiz.cargandoImagen = false;
     raiz.auth = $firebaseAuth();
+    raiz.claveActualValida = false;
+    raiz.verificandoClave = false;
+    raiz.errorAutenticacion = false;
+    raiz.cambiandoClave = false;
     var usuarioAutenticado = raiz.auth.$getAuth();
     var listaUsuarios = $firebaseArray(firebase.database().ref('usuarios'));
     var avatarStorage;
@@ -132,7 +136,6 @@ app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStora
                     avatarStorage.$getDownloadURL().then(function(url) {
                         raiz.rutaAvatar = url;
                     });
-                    
                 });
             }
         });
@@ -168,10 +171,74 @@ app.controller('editarPerfil',['$firebaseAuth','$firebaseObject','$firebaseStora
                 cargaAvatar.$complete(function(snapshot) {
                     raiz.rutaAvatar = snapshot.downloadURL;
                     raiz.cargandoImagen = false;
-                    raiz.usuario.$save();
-                    $rootScope.$emit('userUpdate', [raiz.usuario, raiz.rutaAvatar]);
+                    raiz.guardaDatos(0);
                 });
             });
         }
+    };
+    raiz.guardaDatos = function(delay) {
+        $timeout(function(){
+            usuarioAutenticado.updateProfile({
+                displayName: raiz.usuario.nombres+' '+raiz.usuario.apellidos,
+                photoURL: raiz.rutaAvatar
+            }).then(function() {
+                console.log('Datos auth actualizados');
+            }, function(error) {
+                console.log('Error',error);
+            });
+            raiz.usuario.$save();
+            $rootScope.$emit('userUpdate', [raiz.usuario, raiz.rutaAvatar]);
+            $mdToast.show(
+                $mdToast.simple()
+                .textContent('¡Datos actualizados!')
+                .hideDelay(3000)
+            );
+        },delay);
+    };
+    raiz.validaClave = function() {
+        raiz.verificandoClave = true;
+        var credencial = firebase.auth.EmailAuthProvider.credential(
+            usuarioAutenticado.email,
+            raiz.claveActual
+        );
+        usuarioAutenticado.reauthenticate(credencial).then(function(){
+            raiz.claveActualValida = true;
+            raiz.errorAutenticacion = false;
+            $timeout(function(){
+                raiz.verificandoClave = false;
+            },1000);
+        },function(error){
+            console.log('Error re-autenticando',error);
+            raiz.claveActualValida = false;
+            $timeout(function(){
+                raiz.verificandoClave = false;
+                raiz.errorAutenticacion = true;
+            },1000);
+        });
+    };
+    raiz.guardaClave = function(panel) {
+        raiz.cambiandoClave = true;
+        raiz.auth.$updatePassword(raiz.claveNueva).then(function() {
+            $timeout(function() {
+                raiz.cambiandoClave = false;
+                panel.collapse();
+                raiz.claveVerif = '';
+                raiz.claveNueva = '';
+                raiz.claveActual = '';
+                $mdToast.show(
+                    $mdToast.simple()
+                    .textContent('¡Contraseña actualizada!')
+                    .hideDelay(3000)
+                );
+            },1000);
+        }).catch(function(error){
+            'Error',error;
+            raiz.cambiandoClave = false;
+                $mdToast.show(
+                    $mdToast.simple()
+                    .textContent('Error:'+error+' Intente de nuevo.')
+                    .hideDelay(5000)
+                );
+        });
     };
 }]);
